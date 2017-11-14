@@ -9,6 +9,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore.Images.Media;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.sctech.sctechshop.ShopCategory.ShopEntry;
 
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    private static final int RESULT_LOAD_IMG = 10;
 
     /** EditText field to enter the pet's name */
     private static EditText mNameEditText;
@@ -52,7 +55,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     /** EditText field to enter the pet's weight */
     private static EditText mQtyEditText;
 
-    /** add a picture uploading/holder here **/
+    private static ImageView mViewItemPic;
+
+       /** add a picture uploading/holder here **/
 
     private static boolean mItemHasChanged = false;
 
@@ -211,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -270,7 +276,28 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mNameEditText.setOnTouchListener(mTouchListener);
             mPriceEditText.setOnTouchListener(mTouchListener);
 
+            mViewItemPic = (ImageView) rootView.findViewById(R.id.item_image);
+            mViewItemPic.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(Intent.ACTION_PICK, Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(intent, RESULT_LOAD_IMG);
+                }
+            });
+
             return rootView;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (((requestCode & RESULT_LOAD_IMG) == RESULT_LOAD_IMG) && (resultCode == RESULT_OK) && (data != null)) {
+            Uri selectedImage = data.getData();
+            mViewItemPic.setImageURI(selectedImage);
+            mNameEditText.setText("Selected");
+
         }
     }
 
