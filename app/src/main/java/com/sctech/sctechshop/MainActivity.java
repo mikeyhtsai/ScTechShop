@@ -287,19 +287,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             return rootView;
         }
-    }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
-        if (((requestCode & RESULT_LOAD_IMG) == RESULT_LOAD_IMG) && (resultCode == RESULT_OK) && (data != null)) {
-            Uri selectedImage = data.getData();
-            mViewItemPic.setImageURI(selectedImage);
-            mNameEditText.setText("Selected");
-
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+            if (((requestCode & RESULT_LOAD_IMG) == RESULT_LOAD_IMG) && (resultCode == RESULT_OK) && (data != null)) {
+                Uri selectedImage = data.getData();
+                mViewItemPic.setImageURI(selectedImage);
+                mNameEditText.setText("Fragment: "+getArguments().getInt(ARG_SECTION_NUMBER));
+  //              Intent intent = new Intent(getContext(), MainActivity.class);
+  //              startActivity(intent);
+            }
         }
+
     }
+
+
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
