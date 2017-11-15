@@ -16,6 +16,7 @@
 
         <!-- Label -->
         <TextView
+            android:id="@+id/FragSession"
             android:text="@string/category_overview"
             style="@style/CategoryStyle" />
 

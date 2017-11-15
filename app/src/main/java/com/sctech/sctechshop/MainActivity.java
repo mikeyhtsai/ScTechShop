@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.sctech.sctechshop.ShopCategory.ShopEntry;
 
@@ -45,9 +47,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
      */
     private ViewPager mViewPager;
     private static final int RESULT_LOAD_IMG = 10;
-
+    private static final int MAX_FRAGMENT = 5;
+    private static final int EXISTING_ITEM_LOADER_ID = 1;
+    private static Items[] ItemsEntered;
     /** EditText field to enter the pet's name */
     private static EditText mNameEditText;
+    private static int currFrag = 0;
 
     /** EditText field to enter the pet's breed */
     private static EditText mPriceEditText;
@@ -57,13 +62,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private static ImageView mViewItemPic;
 
+    private static TextView mTextSession;
+
        /** add a picture uploading/holder here **/
 
     private static boolean mItemHasChanged = false;
 
     private Uri mCurrentItemUri;
 
-    private static final int EXISTING_ITEM_LOADER_ID = 1;
+    public static final String LOG_TAG = MainActivity.class.getName();
 
     private static View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
@@ -200,7 +207,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
-
+        //Instance our items to be entered on fragment view
+        ItemsEntered = new Items[MAX_FRAGMENT];
 
         Intent intent = getIntent();
         mCurrentItemUri = intent.getData();
@@ -275,8 +283,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mPriceEditText = (EditText) rootView.findViewById(R.id.edit_item_price);
             mNameEditText.setOnTouchListener(mTouchListener);
             mPriceEditText.setOnTouchListener(mTouchListener);
-
+            mTextSession = (TextView) rootView.findViewById(R.id.FragSession);
             mViewItemPic = (ImageView) rootView.findViewById(R.id.item_image);
+            currFrag = getArguments().getInt(ARG_SECTION_NUMBER) - 1;
+            mTextSession.setText("Fragment: "+ currFrag);
+            Log.v(LOG_TAG, "Resetting Item Picture, Frag:" + currFrag);
+            if (ItemsEntered[currFrag] != null && ItemsEntered[currFrag].getPicture() != null) {
+                mViewItemPic.setImageURI(ItemsEntered[currFrag].getPicture());
+            }
             mViewItemPic.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -288,15 +302,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             return rootView;
         }
 
+        
+
         @Override
         public void onActivityResult(int requestCode, int resultCode, Intent data) {
             super.onActivityResult(requestCode, resultCode, data);
             if (((requestCode & RESULT_LOAD_IMG) == RESULT_LOAD_IMG) && (resultCode == RESULT_OK) && (data != null)) {
                 Uri selectedImage = data.getData();
-                mViewItemPic.setImageURI(selectedImage);
-                mNameEditText.setText("Fragment: "+getArguments().getInt(ARG_SECTION_NUMBER));
-  //              Intent intent = new Intent(getContext(), MainActivity.class);
-  //              startActivity(intent);
+                Items Item = new Items(" ", 0.0, 1, selectedImage);
+                currFrag = getArguments().getInt(ARG_SECTION_NUMBER) - 1;
+                ItemsEntered[currFrag] = Item;
+                Log.v(LOG_TAG, "Store Item Picture, Frag:" + currFrag);
             }
         }
 
@@ -324,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 3;
+            return MAX_FRAGMENT;
         }
     }
 }
